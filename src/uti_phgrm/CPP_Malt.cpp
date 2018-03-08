@@ -491,7 +491,8 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
                     << EAM(mSpatial,"Spatial",true,"Compute the DTM with spatial optimized parameters")
                     << EAM(aDEMInitIMG,"DEMInitIMG",true,"img of the DEM used to initialise the depth research", eSAM_NoInit)
                     << EAM(aDEMInitXML,"DEMInitXML",true,"xml of the DEM used to initialise the depth research", eSAM_NoInit)
-                );
+                    << EAM(mSpatial,"Spatial",true,"Compute the DTM with spatial optimized parameters")
+            );
 
     if (!MMVisualMode)
     {
