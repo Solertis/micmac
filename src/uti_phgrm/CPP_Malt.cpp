@@ -153,6 +153,7 @@ class cAppliMalt
           int         mVSNI;
           int         mNbDirPrgD;
           bool        mPrgDReInject;
+          bool        mSpatial;
 };
 
 
@@ -244,7 +245,8 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
     mMaxFlow       (false),
     mSzRec         (50),
     mNbDirPrgD     (7),
-    mPrgDReInject  (false)
+    mPrgDReInject  (false),
+    mSpatial       (false)
 {
 
 #if ELISE_QT
@@ -393,9 +395,10 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
                     << EAM(mNbDirPrgD,"NbDirPrgD",true,"Nb Dir for prog dyn, (rather for tuning)")
                     << EAM(mPrgDReInject,"PrgDReInject",true,"Reinjection mode for Prg Dyn (experimental)")
                     << EAM(OrthoImSupMNT,"OISM",true,"When true footprint of ortho-image=footprint of DSM")
-                    << EAM(aDEMInitIMG,"DEMInitIMG",true,"img of the DEM used to initialise the depth research", eSAM_NoInit)
-                    << EAM(aDEMInitXML,"DEMInitXML",true,"xml of the DEM used to initialise the depth research", eSAM_NoInit)
-                );
+                    << EAM(aMNTInitIMG,"MNTInitIMG",true,"img of the MNT used to initialise the depth research", eSAM_NoInit)
+                    << EAM(aMNTInitXML,"MNTInitXML",true,"xml of the MNT used to initialise the depth research", eSAM_NoInit)
+                    << EAM(mSpatial,"Spatial",true,"Compute the DTM with spatial optimized parameters")
+            );
 
     if (!MMVisualMode)
     {
@@ -711,6 +714,18 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
       // mZoomInit
 
       std::string aFileMM = "MM-Malt.xml";
+
+      if (mSpatial && mType==eGeomImage)
+      {
+          aFileMM="MM-Malt-Spatial.xml";
+          mSzW = 2;
+          mZRegul = 0.12;
+//          mAffineLast = true;
+          mZPas = 1.0;
+          mCostTrans = 4.0;
+          mDefCor = 0.3;
+          mNbMinIV = 2;
+      }
 
       if (0)
       {
@@ -1241,6 +1256,8 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
       {
           if (mMCorPonc)
             mCom = mCom + " +ModeAgrCor=eAggregIm1Maitre";
+          else if (mSpatial)
+              mCom = mCom + " +ModeAgrCor=eAggregSymetrique";
           else
             mCom = mCom + " +ModeAgrCor=eAggregMoyMedIm1Maitre";
       }

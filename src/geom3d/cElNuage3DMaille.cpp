@@ -913,7 +913,7 @@ void cElNuage3DMaille::PlyPutDataVertex(FILE * aFP, bool aModeBin, int aAddNorma
 
        if (aAddNormale)
        {
-           Pt3dr aN = NormaleOfIndex(anI, aAddNormale);
+           Pt3dr aN = NormaleOfIndex(anI, aAddNormale, anOffset);
 
            float Nxyz[3];
            Nxyz[0] = (float)aN.x;
@@ -1106,7 +1106,7 @@ double cElNuage3DMaille::DiffDeSurface
 }
 
 //Compute local normal on 3D points in a window (wSize x wSize)
-Pt3dr cElNuage3DMaille::NormaleOfIndex(const tIndex2D& anI1, int wSize) const
+Pt3dr cElNuage3DMaille::NormaleOfIndex(const tIndex2D& anI1, int wSize, const Pt3dr & anOffset) const
 {
     if (IndexHasContenu(anI1))
     {
@@ -1117,7 +1117,10 @@ Pt3dr cElNuage3DMaille::NormaleOfIndex(const tIndex2D& anI1, int wSize) const
                 if (mNormByCenter==1)
                    return aTgt * (-aFact);
                 else if (mNormByCenter==2)
-                   return mCam->OrigineProf();
+                {
+                    Pt3dr aCentreOptique = mCam->OrigineProf() - anOffset;
+                    return aCentreOptique;
+                }
 
         std::vector<Pt3dr> aVP;
         std::vector<double> aVPds;
