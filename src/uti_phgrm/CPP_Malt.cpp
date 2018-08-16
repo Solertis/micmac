@@ -395,10 +395,10 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
                     << EAM(mNbDirPrgD,"NbDirPrgD",true,"Nb Dir for prog dyn, (rather for tuning)")
                     << EAM(mPrgDReInject,"PrgDReInject",true,"Reinjection mode for Prg Dyn (experimental)")
                     << EAM(OrthoImSupMNT,"OISM",true,"When true footprint of ortho-image=footprint of DSM")
-                    << EAM(aMNTInitIMG,"MNTInitIMG",true,"img of the MNT used to initialise the depth research", eSAM_NoInit)
-                    << EAM(aMNTInitXML,"MNTInitXML",true,"xml of the MNT used to initialise the depth research", eSAM_NoInit)
                     << EAM(mSpatial,"Spatial",true,"Compute the DTM with spatial optimized parameters")
-            );
+                    << EAM(aDEMInitIMG,"DEMInitIMG",true,"img of the DEM used to initialise the depth research", eSAM_NoInit)
+                    << EAM(aDEMInitXML,"DEMInitXML",true,"xml of the DEM used to initialise the depth research", eSAM_NoInit)
+                );
 
     if (!MMVisualMode)
     {
