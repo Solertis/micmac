@@ -4292,6 +4292,30 @@ bool CalcCentreOptiqueGrille(const OrientationGrille & aOri, Pt3dr & aCentre)
 
 }
 
+int SatPosition_main(int argc,char ** argv)
+{
+    std::string aGRIName;
+
+    ElInitArgMain
+    (
+        argc, argv,
+        LArgMain() << EAMC(aGRIName,"Grid"),
+        LArgMain()
+     );
+
+    OrientationGrille aGRI(aGRIName);
+
+    Pt3dr aCentre;
+    if (! CalcCentreOptiqueGrille(aGRI,aCentre))
+        return EXIT_FAILURE;
+
+    std::cout << aCentre.x << " " << aCentre.y << " " << aCentre.z << "\n";
+
+    return EXIT_SUCCESS;
+
+}
+
+
 int CalcBsurHGrille_main(int argc,char ** argv)
 {
     std::string aGRIName1,aGRIName2;
@@ -4324,6 +4348,7 @@ int CalcBsurHGrille_main(int argc,char ** argv)
     double aB = euclid(aCentre2-aCentre1);
 
     std::cout << "B=" << aB << ", H=" << aCentre1.z << ", B/H=" << aB/aCentre1.z << "\n";
+
 
     return(1);    
 

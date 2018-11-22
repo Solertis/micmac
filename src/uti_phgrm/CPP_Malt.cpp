@@ -109,7 +109,7 @@ Pt2di getImageSz(std::string const &aName)
     return aTif.sz();
 }
 
-bool getCamera(const std::string imageName, const std::string oriType, const Pt2di ImgSz, shared_ptr<ElCamera>& aCam, cInterfChantierNameManipulateur * mICNM)
+bool getCamera(const std::string imageName, const std::string oriType, const std::string mDir, const Pt2di ImgSz, shared_ptr<ElCamera>& aCam, cInterfChantierNameManipulateur * mICNM)
 {
     std::string orientationName;
     ElAffin2D oriIntImaM2C;
@@ -121,7 +121,7 @@ bool getCamera(const std::string imageName, const std::string oriType, const Pt2
 
         std::string baseName;
         baseName.assign(imageName.begin(),imageName.begin()+placePoint+1);
-        orientationName = baseName+"GRI";
+        orientationName = mDir + baseName+"GRI";
         if (ELISE_fp::exist_file(orientationName))
         {
             shared_ptr<ElCamera> aCam2 (new cCameraModuleOrientation(new OrientationGrille(orientationName),ImgSz,oriIntImaM2C));
@@ -131,17 +131,19 @@ bool getCamera(const std::string imageName, const std::string oriType, const Pt2
     else
     {
         //Soit il s'agit d'une orientation normale
-        if (ELISE_fp::exist_file("Ori-" + oriType + "/Orientation-" + imageName + ".xml"))
+        if (ELISE_fp::exist_file(mDir + "Ori-" + oriType + "/Orientation-" + imageName + ".xml"))
         {
-            orientationName = "Ori-" + oriType + "/Orientation-" + imageName + ".xml";
+            orientationName = mDir + "Ori-" + oriType + "/Orientation-" + imageName + ".xml";
+
+            std::cout<<orientationName<<std::endl;
             shared_ptr<ElCamera> aCam2 (Cam_Gen_From_File(orientationName,"OrientationConique", mICNM));
             aCam = aCam2;
         }
-
         //Soit d'une orientation passee par GenBundle
-        else if (ELISE_fp::exist_file("Ori-" + oriType + "/GB-Orientation-" + imageName + ".xml"))
+        else if (ELISE_fp::exist_file(mDir + "Ori-" + oriType + "/GB-Orientation-" + imageName + ".xml"))
         {
-            orientationName = "Ori-" + oriType + "/GB-Orientation-" + imageName + ".xml";
+            orientationName = mDir + "Ori-" + oriType + "/GB-Orientation-" + imageName + ".xml";
+
             shared_ptr<ElCamera> aCam2 (new cCameraModuleOrientation(new OrientationRTO(orientationName),ImgSz,oriIntImaM2C));
             aCam = aCam2;
         }
@@ -1341,12 +1343,12 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
       {
           std::cout << "Calcul d'une boxImage a partir de celle ci (Terrain): " << aBoxTerrainGeomIm  << std::endl;
 
-          Pt2di ImgSz = getImageSz(mImMaster);
+          Pt2di ImgSz = getImageSz(mDir + mImMaster);
           std::cout << "ImgSz: " << ImgSz.x << " " << ImgSz.y << std::endl;
           std::cout << "ZMoy: "<< mZMoy<< std::endl;
 
           shared_ptr<ElCamera> aCam;
-          if (!getCamera(mImMaster,mOri,ImgSz, aCam, mICNM))
+          if (!getCamera(mImMaster,mOri,mDir,ImgSz, aCam, mICNM))
           {
               std::cout << "No orientation file for " << mImMaster << " - skip " << std::endl;
               return;
