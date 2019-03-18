@@ -215,7 +215,12 @@ MICMAC /home/marc/micmac/include/XML_MicMac/Param-MNS-Ortho.xml  WorkDir=/home/m
              <ZIncCalc>   ${ZIncCalc} </ZIncCalc>
              <ZIncIsProp> ${ZIncIsProp} </ZIncIsProp>
              <IncludeFileLoc>  ${FileZMoy} </IncludeFileLoc>
-
+             <#WHEN VTEST=${UseDEMInit}>
+                 <MNT_Init>  
+                     <MNT_Init_Image> ${DEMInitIMG} </MNT_Init_Image>
+                     <MNT_Init_Xml> ${DEMInitXML} </MNT_Init_Xml>
+                 </MNT_Init>
+             </#WHEN>
       </IntervAltimetrie>
 
       <IntervSpecialZInv>
