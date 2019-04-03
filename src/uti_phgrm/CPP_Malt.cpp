@@ -1355,11 +1355,6 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
 
           //Ecriture en pt3d pour utiliser Ter2Capteur
           Pt3dr PtSO, PtSE, PtNO, PtNE;
-//          PtNO.x = aBoxTerrainGeomIm._p0.x;  PtSO.y = aBoxTerrainGeomIm._p0.y;  PtSO.z = mZMoy;
-//          PtSE.x = aBoxTerrainGeomIm._p1.x;  PtNE.y = aBoxTerrainGeomIm._p1.y;  PtNE.z = mZMoy;
-
-//          PtNE.x = PtSE.x;        PtNE.y = PtNO.y;        PtNE.z = mZMoy;
-//          PtSO.x = PtNO.x;        PtSO.y = PtSE.y;        PtSO.z = mZMoy;
           PtSO.x = aBoxTerrainGeomIm._p0.x;  PtSO.y = aBoxTerrainGeomIm._p0.y;  PtSO.z = mZMoy;
           PtNE.x = aBoxTerrainGeomIm._p1.x;  PtNE.y = aBoxTerrainGeomIm._p1.y;  PtNE.z = mZMoy;
           PtSE.x = PtNE.x;        PtSE.y = PtSO.y;        PtSE.z = mZMoy;
@@ -1374,46 +1369,21 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
           std::cout << "ptISO : " << ptISO.x << " " << ptISO.y << std::endl;
           std::cout << "ptISE : " << ptISE.x << " " << ptISE.y << std::endl;
 
-          int cmin=ImgSz.x+1;
-          if (ptINO.x<cmin) cmin=ptINO.x;
-          if (ptISO.x<cmin) cmin=ptISO.x;
-          if (ptISE.x<cmin) cmin=ptISE.x;
-          if (ptINE.x<cmin) cmin=ptINE.x;
+          int cmin = std::min(std::min(ptINE.x,ptISE.x), std::min(ptINO.x,ptISO.x));
+          cmin = std::max(cmin, 0);
 
-          int lmin=ImgSz.y+1;
-          if (ptINO.y<lmin) lmin=ptINO.y;
-          if (ptISO.y<lmin) lmin=ptISO.y;
-          if (ptISE.y<lmin) lmin=ptISE.y;
-          if (ptINE.y<lmin) lmin=ptINE.y;
+          int lmin = std::min(std::min(ptINE.y,ptISE.y), std::min(ptINO.y,ptISO.y));
+          lmin = std::max(lmin, 0);
 
-          int cmax=0;
-          if (ptINO.x>cmax) cmax=ptINO.x;
-          if (ptISO.x>cmax) cmax=ptISO.x;
-          if (ptISE.x>cmax) cmax=ptISE.x;
-          if (ptINE.x>cmax) cmax=ptINE.x;
+          int cmax = std::max(std::max(ptINE.x,ptISE.x), std::max(ptINO.x,ptISO.x));
+          cmax = std::min(cmax, ImgSz.x);
 
-          int lmax=0;
-          if (ptINO.y>lmax) lmax=ptINO.y;
-          if (ptISO.y>lmax) lmax=ptISO.y;
-          if (ptISE.y>lmax) lmax=ptISE.y;
-          if (ptINE.y>lmax) lmax=ptINE.y;
+          int lmax = std::max(std::max(ptINE.y,ptISE.y), std::max(ptINO.y,ptISO.y));
+          lmax = std::min(lmax, ImgSz.y);
 
           std::cout << "BOX : " << cmin << " " << lmin << " " << cmax << " " << lmax << std::endl;
 
-//          std::vector<double> vc; vc.push_back(ptINO.x); vc.push_back(ptINE.x); vc.push_back(ptISO.x); vc.push_back(ptISE.x);
-//          std::vector<double> vl; vl.push_back(ptINO.y); vl.push_back(ptINE.y); vl.push_back(ptISO.y); vl.push_back(ptISE.y);
-
-//          double minVC = vc[std::distance(vc.begin(), std::min_element(vc.begin(), vc.end()))];
-//          double maxVC = vc[std::distance(vc.begin(), std::max_element(vc.begin(), vc.end()))];
-//          double minVL = vl[std::distance(vl.begin(), std::max_element(vl.begin(), vl.end()))];
-//          double maxVL = vl[std::distance(vl.begin(), std::max_element(vl.begin(), vl.end()))];
-
-//          int cmin = max(floor(minVC), (double)0);
-//          int cmax = min(floor(maxVC)+1, (double)ImgSz.x);
-//          int lmin = max(floor(minVL), (double)0);
-//          int lmax = min(floor(maxVL)+1, (double)ImgSz.y);
-
-          if (cmin>ImgSz.x || cmax<0 || lmin>ImgSz.y || lmax<0)
+          if (cmin>=ImgSz.x || cmax<=0 || lmin>=ImgSz.y || lmax<=0)
           {
               std::cout << "**********************************************************************" << std::endl;
               std::cout << "******* La BoxTerrainGeomIm est en dehors de l'image maitresse *******" << std::endl;

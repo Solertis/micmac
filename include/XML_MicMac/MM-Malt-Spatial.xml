@@ -168,6 +168,10 @@ MICMAC /home/marc/micmac/include/XML_MicMac/Param-MNS-Ortho.xml  WorkDir=/home/m
    <Symb> UseRatioResolImage=false </Symb>
    <Symb> RatioResolImage=1 </Symb>
 
+    <Symb> UseDEMInit=false </Symb>
+    <Symb> DEMInitXML="XXXXXX" </Symb>
+    <Symb> DEMInitIMG="XXXXXX" </Symb>
+
 <!--
 
     <Symb>  UseEqui=t=rue </Symb>
