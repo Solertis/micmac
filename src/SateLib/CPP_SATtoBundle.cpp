@@ -233,15 +233,16 @@ int SatBBox_main(int argc,char ** argv)
     OrientationGrille aOri(aGRIName);
 
     Pt2dr aDZ = aOri.GetRangeZ();
-    double Zmin =min(aDZ.x, aDZ.y);
+    double Zmin =max(min(aDZ.x, aDZ.y),0.);
 
-    Pt2dr aDC = aOri.GetRangeCol();
+    Pt2dr aDC = aOri.GetRangeCol(); //On prends les bornes de la grille donc on sait deja que celle-ci est trop grande...
     Pt2dr aDR = aOri.GetRangeRow();
 
+
     Pt2dr aP00(aDC.x,aDR.x);
-    Pt2dr aP01(aDC.x,aDR.y);
+    Pt2dr aP01(aDC.x,abs(aDR.y)); //rajout abs car si les colones sont en negatif...
     Pt2dr aP10(aDC.y,aDR.x);
-    Pt2dr aP11(aDC.y,aDR.y);
+    Pt2dr aP11(aDC.y,abs(aDR.y));
 
     Pt2dr aP00Gr,aP01Gr,aP10Gr,aP11Gr;
     aOri.ImageAndPx2Obj(aP00.x,aP00.y,&Zmin,aP00Gr.x,aP00Gr.y);
@@ -249,13 +250,22 @@ int SatBBox_main(int argc,char ** argv)
     aOri.ImageAndPx2Obj(aP10.x,aP10.y,&Zmin,aP10Gr.x,aP10Gr.y);
     aOri.ImageAndPx2Obj(aP11.x,aP11.y,&Zmin,aP11Gr.x,aP11Gr.y);
 
+    /* PourDebug
+    std::cout << "Z " << aDZ.x << " " << aDZ.y << " ZMIN "<< Zmin << std::endl;
+    std::cout << "C " << aDC.x << " " << aDC.y << std::endl;
+    std::cout << "R " << aDR.x << " " << aDR.y << std::endl;
+    std::cout << "PT00 " << aP00Gr.x << " " << aP00Gr.y << std::endl;
+    std::cout << "PT01 " << aP01Gr.x << " " << aP01Gr.y << std::endl;
+    std::cout << "PT10 " << aP10Gr.x << " " << aP10Gr.y << std::endl;
+    std::cout << "PT11 " << aP11Gr.x << " " << aP11Gr.y << std::endl;
+    */
+
     double Xmin=min(min(aP00Gr.x, aP01Gr.x), min(aP10Gr.x, aP11Gr.x));
     double Xmax=max(max(aP00Gr.x, aP01Gr.x), max(aP10Gr.x, aP11Gr.x));
     double Ymin=min(min(aP00Gr.y, aP01Gr.y), min(aP10Gr.y, aP11Gr.y));
     double Ymax=max(max(aP00Gr.y, aP01Gr.y), max(aP10Gr.y, aP11Gr.y));
 
     std::cout << Xmin << " " << Ymin << " " << Xmax << " " << Ymax << "\n";
-
 
     return EXIT_SUCCESS;
 }
