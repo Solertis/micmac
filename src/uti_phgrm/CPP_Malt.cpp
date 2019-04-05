@@ -109,19 +109,19 @@ Pt2di getImageSz(std::string const &aName)
     return aTif.sz();
 }
 
-bool getCamera(const std::string imageName, const std::string oriType, const std::string mDir, const Pt2di ImgSz, shared_ptr<ElCamera>& aCam, cInterfChantierNameManipulateur * mICNM)
+bool getCamera(const std::string imageName, const std::string oriType, const std::string modeOri, const std::string mDir, const Pt2di ImgSz, shared_ptr<ElCamera>& aCam, cInterfChantierNameManipulateur * mICNM)
 {
     std::string orientationName;
     ElAffin2D oriIntImaM2C;
 
-    if (oriType=="GRI")
+    if (modeOri=="GRID")
     {
         int placePoint = getPlacePoint(imageName);
         if (placePoint==-1) return false;
 
         std::string baseName;
         baseName.assign(imageName.begin(),imageName.begin()+placePoint+1);
-        orientationName = mDir + baseName+"GRI";
+        orientationName = mDir + baseName+oriType;
         if (ELISE_fp::exist_file(orientationName))
         {
             shared_ptr<ElCamera> aCam2 (new cCameraModuleOrientation(new OrientationGrille(orientationName),ImgSz,oriIntImaM2C));
@@ -1347,7 +1347,8 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
           std::cout << "ZMoy: "<< mZMoy<< std::endl;
 
           shared_ptr<ElCamera> aCam;
-          if (!getCamera(mImMaster,mOri,mDir,ImgSz, aCam, mICNM))
+
+          if (!getCamera(mImMaster,mOri,mModeOri,mDir,ImgSz, aCam, mICNM))
           {
               std::cout << "No orientation file for " << mImMaster << " - skip " << std::endl;
               return;
