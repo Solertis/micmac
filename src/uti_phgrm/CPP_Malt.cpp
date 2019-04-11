@@ -395,6 +395,7 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
     InitDefValFromType();
 
     Box2dr aBoxClip, aBoxTerrain, aBoxTerrainGeomIm;
+    double aZMin=-999;
     double aResolTerrain;
     double aRatioResolImage=1;
 
@@ -470,6 +471,7 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
                     << EAM(aBoxClip,"BoxClip",true,"To Clip Computation, normalized image coordinates ([0,0,1,1] means full box)", eSAM_Normalize)
                     << EAM(aBoxTerrain,"BoxTerrain",true,"([Xmin,Ymin,Xmax,Ymax])")
                     << EAM(aBoxTerrainGeomIm,"BoxTerrainGeomIm",true,"For GeomImage, using orientation to project... ([Xmin,Ymin,Xmax,Ymax])")
+                    << EAM(aZMin,"ZMin",true,"to compute BoxTerrainGeomIm projection in the image")
                     << EAM(aResolTerrain,"ResolTerrain",true,"Ground Resol (Def automatically computed)", eSAM_NoInit)
                     << EAM(aRatioResolImage,"RRI",true,"Ratio Resol Image (f.e. if set to 0.8 and image resol is 2.0, will be computed at 1.6)", eSAM_NoInit)
                     << EAM(mRoundResol,"RoundResol",true,"Use rounding of resolution (def context dependent,tuning purpose)", eSAM_InternalUse)
@@ -1344,8 +1346,15 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
 
           Pt2di ImgSz = getImageSz(mDir + mImMaster);
           std::cout << "ImgSz: " << ImgSz.x << " " << ImgSz.y << std::endl;
-          std::cout << "ZMoy: "<< mZMoy<< std::endl;
+          std::cout << "ZMin: "<< aZMin<< std::endl;
 
+          if (aZMin==-999)
+          {
+              std::cout << "*****************************************************************************" << std::endl;
+              std::cout << "***** Donner le ZMin pour reprojeter la BoxTerrain en coordonnees image *****" << std::endl;
+              std::cout << "*****************************************************************************" << std::endl;
+              return;
+          }
           shared_ptr<ElCamera> aCam;
 
           if (!getCamera(mImMaster,mOri,mModeOri,mDir,ImgSz, aCam, mICNM))
@@ -1356,10 +1365,10 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
 
           //Ecriture en pt3d pour utiliser Ter2Capteur
           Pt3dr PtSO, PtSE, PtNO, PtNE;
-          PtSO.x = aBoxTerrainGeomIm._p0.x;  PtSO.y = aBoxTerrainGeomIm._p0.y;  PtSO.z = mZMoy;
-          PtNE.x = aBoxTerrainGeomIm._p1.x;  PtNE.y = aBoxTerrainGeomIm._p1.y;  PtNE.z = mZMoy;
-          PtSE.x = PtNE.x;        PtSE.y = PtSO.y;        PtSE.z = mZMoy;
-          PtNO.x = PtSO.x;        PtNO.y = PtNE.y;        PtNO.z = mZMoy;
+          PtSO.x = aBoxTerrainGeomIm._p0.x;  PtSO.y = aBoxTerrainGeomIm._p0.y;  PtSO.z = aZMin;
+          PtNE.x = aBoxTerrainGeomIm._p1.x;  PtNE.y = aBoxTerrainGeomIm._p1.y;  PtNE.z = aZMin;
+          PtSE.x = PtNE.x;        PtSE.y = PtSO.y;        PtSE.z = aZMin;
+          PtNO.x = PtSO.x;        PtNO.y = PtNE.y;        PtNO.z = aZMin;
           Pt2dr ptINO = aCam->Ter2Capteur(PtNO);
           Pt2dr ptINE = aCam->Ter2Capteur(PtNE);
           Pt2dr ptISO = aCam->Ter2Capteur(PtSO);
@@ -1370,16 +1379,18 @@ cAppliMalt::cAppliMalt(int argc,char ** argv) :
           std::cout << "ptISO : " << ptISO.x << " " << ptISO.y << std::endl;
           std::cout << "ptISE : " << ptISE.x << " " << ptISE.y << std::endl;
 
-          int cmin = std::min(std::min(ptINE.x,ptISE.x), std::min(ptINO.x,ptISO.x));
+          int marge = 20; // en pixel
+
+          int cmin = std::min(std::min(ptINE.x,ptISE.x), std::min(ptINO.x,ptISO.x))-marge;
           cmin = std::max(cmin, 0);
 
-          int lmin = std::min(std::min(ptINE.y,ptISE.y), std::min(ptINO.y,ptISO.y));
+          int lmin = std::min(std::min(ptINE.y,ptISE.y), std::min(ptINO.y,ptISO.y))-marge;
           lmin = std::max(lmin, 0);
 
-          int cmax = std::max(std::max(ptINE.x,ptISE.x), std::max(ptINO.x,ptISO.x));
+          int cmax = std::max(std::max(ptINE.x,ptISE.x), std::max(ptINO.x,ptISO.x))+marge;
           cmax = std::min(cmax, ImgSz.x);
 
-          int lmax = std::max(std::max(ptINE.y,ptISE.y), std::max(ptINO.y,ptISO.y));
+          int lmax = std::max(std::max(ptINE.y,ptISE.y), std::max(ptINO.y,ptISO.y))+marge;
           lmax = std::min(lmax, ImgSz.y);
 
           std::cout << "BOX : " << cmin << " " << lmin << " " << cmax << " " << lmax << std::endl;
